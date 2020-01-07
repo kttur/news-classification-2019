@@ -8,6 +8,10 @@ def clustering_test(x, y, method='kmeans', x_test=None, y_test=None):
     result = {}
     if method == 'kmeans':
         clustering = KMeans(n_clusters=len(set(y)))
+    elif method == 'dbscan':
+        clustering = DBSCAN()
+    elif method == 'agglomerative':
+        clustering = AgglomerativeClustering(n_clusters=len(set(y)))
     else:
         raise ValueError('Unknown method')
     predicted = clustering.fit_predict(x)
@@ -25,12 +29,15 @@ if __name__ == '__main__':
     test = fetch_20newsgroups(subset='test')
     count_vectorizer = CountVectorizer()
     tf_idf_vectorizer = TfidfVectorizer()
-    matrices = dict()
-    matrices['count'] = count_vectorizer.fit_transform(train.data)
-    matrices['tf-idf'] = tf_idf_vectorizer.fit_transform(train.data)
+    vec = dict()
+    vec['count'] = count_vectorizer.fit_transform(train.data[:500]).toarray()
+    vec['tf-idf'] = tf_idf_vectorizer.fit_transform(train.data[:500]).toarray()
     results = {}
     for vectorizer in ('count', 'tf-idf'):
         results[vectorizer] = {}
-        for method in ('kmeans', ):
-            results[vectorizer][method] = clustering_test(matrices[vectorizer], train.target, method)
-    print(results)
+        for method in ('kmeans', 'dbscan', 'agglomerative'):
+            results[vectorizer][method] = clustering_test(vec[vectorizer], train.target[:500], method)
+    for vectorizer in results:
+        print(f"\n{vectorizer}")
+        for method in results[vectorizer]:
+            print(f"{method}: {results[vectorizer][method]}")
