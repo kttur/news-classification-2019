@@ -17,6 +17,7 @@ def clustering_test(x, y, method='kmeans', x_test=None, y_test=None):
     predicted = clustering.fit_predict(x)
     result['v_measure_score'] = v_measure_score(y, predicted)
     result['completeness_score'] = completeness_score(y, predicted)
+    result['n_clusters'] = len(set(predicted))
     if x_test is not None and y_test is not None:
         predicted_test = clustering.predict(x_test)
         result['v_measure_test'] = v_measure_score(y_test, predicted_test)
