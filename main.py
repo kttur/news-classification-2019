@@ -59,6 +59,7 @@ def get_top_words_by_cluster(result_dict, count=3):
         result[cluster] = sorted(result_dict[cluster], key=lambda x: result_dict[cluster][x], reverse=True)[:3]
     return result
 
+
 def get_stemmed_text(text):
     porter = PorterStemmer()
     return " ".join((porter.stem(word) for word in word_tokenize(text)))
