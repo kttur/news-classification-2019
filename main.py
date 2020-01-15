@@ -32,7 +32,7 @@ def clustering_test(x, y, method='kmeans', x_test=None, y_test=None):
         predicted_test = clustering.predict(x_test)
         result['v_measure_test'] = v_measure_score(y_test, predicted_test)
         result['completeness_score_test'] = completeness_score(y_test, predicted_test)
-    return result
+    return {'predicted': predicted, 'info': result}
 
 
 def scatter(x, target):
@@ -53,7 +53,11 @@ def count_words(data, target):
     return result
 
 
-def get_top_words_by_cluster(result_dict, count=3):
+def get_top_words_by_cluster(data, target=None, count=3):
+    if target is not None:
+        result_dict = count_words(data, target)
+    else:
+        result_dict = data
     result = dict()
     for cluster in result_dict:
         result[cluster] = sorted(result_dict[cluster], key=lambda x: result_dict[cluster][x], reverse=True)[:3]
@@ -94,4 +98,5 @@ if __name__ == '__main__':
         for vec_type in results[data_type]:
             print(f"\n{vec_type}")
             for method in results[data_type][vec_type]:
-                print(f"{method}: {results[data_type][vec_type][method]}")
+                print(f"{method}: {results[data_type][vec_type][method]['info']}")
+                print(f"Top words: {get_top_words_by_cluster(data[data_type], results[data_type][vec_type][method]['predicted'])}")
