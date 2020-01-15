@@ -6,6 +6,7 @@ from sklearn.manifold import TSNE
 from matplotlib import pyplot as plt
 from nltk.stem import PorterStemmer
 from nltk.tokenize import word_tokenize
+from collections import defaultdict
 import numpy as np
 import seaborn as sns
 
@@ -42,6 +43,21 @@ def scatter(x, target):
                     c=palette[np.array(target)])
     return figure
 
+
+def count_words(data, target):
+    result = defaultdict(dict)
+    for id, text in enumerate(data):
+        current_target = target[id]
+        for word in word_tokenize(text):
+            result[current_target][word] = result[current_target].get(word, 0) + 1
+    return result
+
+
+def get_top_words_by_cluster(result_dict, count=3):
+    result = dict()
+    for cluster in result_dict:
+        result[cluster] = sorted(result_dict[cluster], key=lambda x: result_dict[cluster][x], reverse=True)[:3]
+    return result
 
 def get_stemmed_text(text):
     porter = PorterStemmer()
