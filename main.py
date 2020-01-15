@@ -9,6 +9,7 @@ from nltk.tokenize import word_tokenize
 from collections import defaultdict
 import numpy as np
 import seaborn as sns
+import re
 
 
 def clustering_test(x, y, method='kmeans', x_test=None, y_test=None):
@@ -60,13 +61,18 @@ def get_top_words_by_cluster(data, target=None, count=3):
         result_dict = data
     result = dict()
     for cluster in result_dict:
-        result[cluster] = sorted(result_dict[cluster], key=lambda x: result_dict[cluster][x], reverse=True)[:3]
+        result[cluster] = sorted(result_dict[cluster], key=lambda x: result_dict[cluster][x], reverse=True)[:count]
     return result
 
 
 def get_stemmed_text(text):
     porter = PorterStemmer()
-    return " ".join((porter.stem(word) for word in word_tokenize(text)))
+    word_list = list()
+    for word in word_tokenize(text):
+        stemmed = porter.stem(word)
+        if stemmed.isalnum():
+            word_list.append(stemmed)
+    return " ".join(word_list)
 
 
 def get_stemmed_data(data):
@@ -99,4 +105,5 @@ if __name__ == '__main__':
             print(f"\n{vec_type}")
             for method in results[data_type][vec_type]:
                 print(f"{method}: {results[data_type][vec_type][method]['info']}")
-                print(f"Top words: {get_top_words_by_cluster(data[data_type], results[data_type][vec_type][method]['predicted'])}")
+                top_words = get_top_words_by_cluster(data[data_type], results[data_type][vec_type][method]['predicted'], 10)
+                print(f"Top words: {top_words}")
