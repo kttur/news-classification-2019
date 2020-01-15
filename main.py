@@ -4,6 +4,8 @@ from sklearn.cluster import KMeans, DBSCAN, AgglomerativeClustering
 from sklearn.metrics.cluster import completeness_score, v_measure_score
 from sklearn.manifold import TSNE
 from matplotlib import pyplot as plt
+from nltk.stem import PorterStemmer
+from nltk.tokenize import word_tokenize
 import numpy as np
 import seaborn as sns
 
@@ -43,20 +45,38 @@ def scatter(x, target):
     return f
 
 
+def get_stemmed_text(text):
+    porter = PorterStemmer()
+    return " ".join((porter.stem(word) for word in word_tokenize(text)))
+
+
+def get_stemmed_data(data):
+    return [get_stemmed_text(text) for text in data]
+
+
 if __name__ == '__main__':
     train = fetch_20newsgroups(subset='train')
     test = fetch_20newsgroups(subset='test')
-    count_vectorizer = CountVectorizer()
-    tf_idf_vectorizer = TfidfVectorizer()
+    data_source = train.data[:100]
+    target = train.target[:100]
+    vectorizers = {'count': CountVectorizer, 'tf-idf': TfidfVectorizer}
+    data = {'raw': data_source, 'stemmed': get_stemmed_data(data_source)}
     vec = dict()
-    vec['count'] = count_vectorizer.fit_transform(train.data[:500]).toarray()
-    vec['tf-idf'] = tf_idf_vectorizer.fit_transform(train.data[:500]).toarray()
+    for data_type in data:
+        vec[data_type] = dict()
+        for v_type in vectorizers:
+            vectorizer = vectorizers[v_type]()
+            vec[data_type][v_type] = vectorizer.fit_transform(data[data_type]).toarray()
     results = {}
-    for vectorizer in ('count', 'tf-idf'):
-        results[vectorizer] = {}
-        for method in ('kmeans', 'dbscan', 'agglomerative'):
-            results[vectorizer][method] = clustering_test(vec[vectorizer], train.target[:500], method)
-    for vectorizer in results:
-        print(f"\n{vectorizer}")
-        for method in results[vectorizer]:
-            print(f"{method}: {results[vectorizer][method]}")
+    for data_type in data:
+        results[data_type] = dict()
+        for v_type in vectorizers:
+            results[data_type][v_type] = dict()
+            for method in ('kmeans', 'dbscan', 'agglomerative'):
+                results[data_type][v_type][method] = clustering_test(vec[data_type][v_type], target, method)
+    for data_type in results:
+        print(f"\n{data_type}")
+        for vec_type in results[data_type]:
+            print(f"\n{vec_type}")
+            for method in results[data_type][vec_type]:
+                print(f"{method}: {results[data_type][vec_type][method]}")
