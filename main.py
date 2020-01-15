@@ -2,6 +2,7 @@ from sklearn.datasets import fetch_20newsgroups
 from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
 from sklearn.cluster import KMeans, DBSCAN, AgglomerativeClustering
 from sklearn.metrics.cluster import completeness_score, v_measure_score
+from sklearn.manifold import TSNE
 from matplotlib import pyplot as plt
 import numpy as np
 import seaborn as sns
@@ -21,6 +22,9 @@ def clustering_test(x, y, method='kmeans', x_test=None, y_test=None):
     result['v_measure_score'] = v_measure_score(y, predicted)
     result['completeness_score'] = completeness_score(y, predicted)
     result['n_clusters'] = len(set(predicted))
+    t = TSNE().fit_transform(x)
+    result['scatter_real'] = scatter(t, y)
+    result['scatter_predicted'] = scatter(t, predicted)
     if x_test is not None and y_test is not None:
         predicted_test = clustering.predict(x_test)
         result['v_measure_test'] = v_measure_score(y_test, predicted_test)
