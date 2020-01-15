@@ -2,6 +2,9 @@ from sklearn.datasets import fetch_20newsgroups
 from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
 from sklearn.cluster import KMeans, DBSCAN, AgglomerativeClustering
 from sklearn.metrics.cluster import completeness_score, v_measure_score
+from matplotlib import pyplot as plt
+import numpy as np
+import seaborn as sns
 
 
 def clustering_test(x, y, method='kmeans', x_test=None, y_test=None):
@@ -23,6 +26,17 @@ def clustering_test(x, y, method='kmeans', x_test=None, y_test=None):
         result['v_measure_test'] = v_measure_score(y_test, predicted_test)
         result['completeness_score_test'] = completeness_score(y_test, predicted_test)
     return result
+
+
+def scatter(x, target):
+    palette = np.array(sns.color_palette("hls", len(set(target))))
+    f = plt.figure(figsize=(15, 15))
+    ax = plt.subplot(aspect='equal')
+    sc = ax.scatter(x[:, 0], x[:, 1], lw=0, s=30,
+                    c=palette[np.array(target)])
+    plt.xlim(-11, 11)
+    plt.ylim(-11, 11)
+    return f
 
 
 if __name__ == '__main__':
